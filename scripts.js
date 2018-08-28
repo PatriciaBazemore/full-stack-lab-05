@@ -32,7 +32,7 @@ $('#target-letter').text(currentLetter);                //add letters to lil div
 
 //rewritten with toggleKeyboards()
 
-$(document).keydown(function(e) { 
+$(document).keydown(function(e){ 
     if(e.which == 16) {                                 //If it's spacebar
         toggleKeyboards();                              //CALL THE FUNCTION
     }
