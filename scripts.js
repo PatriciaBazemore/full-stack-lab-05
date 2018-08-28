@@ -1,87 +1,118 @@
 
-$('#keyboard-upper-container').hide()
+var sentences = ['ten ate neite ate nee enet ite ate inet ent eate', 'Too ato too nOt enot one totA not anot tOO aNot', 'oat itain oat tain nate eate tea anne inant nean', 'itant eate anot eat nato inate eat anot tain eat', 'nee ene ate ite tent tiet ent ine ene ete ene ate'];
+var sentenceIndex = 0;
+var letterIndex = 0;
+var currentSentence = sentences[0];
+var currentLetter = currentSentence.charAt(0); // = currentSentence[0]
+var errorCount = 0;
+var startTime;
 
+
+
+// var $keyboardlower = '#keyboard-lower-container';
+// var $keyboardupper = '#keyboard-upper-container';
+
+function toggleKeyboards() {   //add toggleKeyboards in above functions)
+    $('#keyboard-upper-container').toggle();
+    $('#keyboard-lower-container').toggle();
+}
+
+$('#keyboard-upper-container').hide();                  //hide one keyboard
+$('#sentence').text(currentSentence);                   //add sentences to div at top
+$('#target-letter').text(currentLetter);                //add letters to lil div
 
 //switch keyboard when shift key pressed
-var keyboardlower = '#keyboard-lower-container';
-var keyboardupper = '#keyboard-upper-container';
 
-$(document).keydown(function(e) {
-    if(e.which == 16) {
-        $('#keyboard-upper-container').hide();
-        $('#keyboard-lower-container').show();
-        body.appendChild();
+// $(document).keydown(function(e) {                    //takes one argument=function e lets us capture data, which key
+//     if(e.which == 16) {                              // 16 = the shift key
+//         $('#keyboard-upper-container').hide();
+//         $('#keyboard-lower-container').show();
+//     }
+// });
+
+//rewritten with toggleKeyboards()
+
+$(document).keydown(function(e) { 
+    if(e.which == 16) {                                 //If it's spacebar
+        toggleKeyboards();                              //CALL THE FUNCTION
     }
-})
+});
+
+$(document).keyup(function(e){
+//  $('.key').css('background-color', '#f5f5f5');
+    $('.highlighted').removeClass("highlighted");
+    $('#target-letter').charAt(sentence[0]);              //WHAT SHOULD I BE
+    if(e.which == 16) {                                   ///16 = shift
+        toggleKeyboards();                                 //CALL THE FUNCTION
+    }    
+});
 
 //highlight key when pressed 
-('span #well well-lg key').attr('id') {
-
-$(document).keypress(function(e){
-    var kpressed = e.which
-    $('#' + kpressed).css('bacground-color, yellow');
-}
-
+ $(document).keypress(function(e){
+    //  $('#' + e.which).css('background-color', 'yellow');
+        event.preventDefault();                         //keeps from scrolling with spacebar/default action 
+        $('#' + e.which).addClass('highlighted');
+    //    var timestart = e.getTime(0); 
+         console.log(event);
+        if (!startTime) {  //if i don't have a startTime value
+            startTime = event.timeStamp;  //i give it a start time to run
+        }
+     
+        if (event.which === currentLetter.charCodeAt(0)){ ///keypress matches current key?
+           $('#feedback').append('<span class="glyphicon glyphicon-ok"></span'); //creates green check
+        } else {
+             $('#feedback').append('<span class="glyphicon glyphicon-remove"></span');  //creates red X by adding class
+             errorCount++;  //add it to the error count
+             }
+        letterIndex++;  ////increases this by 1, next letter!
     
-
-
-
-fromCharCode  returns actual character
-
- charCodeAt(0) returns ascii 
-
-
-//lowerKeyBoard.addEventListener('shiftKey', function({
-//    keyboardupper.hide();
-//    keyboardlower.show();
-//})
-
-// if (event.shiftKey==1) {
-//    $('#keyboard-upper-container').hide();
-//    $('#keyboard-lower-container').show();
-// } else {
-//     $('#keyboard-lower-container').hide();
-//     $('#keyboard-upper-container').hide();
-// }
-
-// if (e.shiftKey){
-//     $('#keyboard-upper-container').hide();
-//     $('keyboard-lower-container').show();
-// };
-
-//<div class="text-center keyboard-container" id="keyboard-upper-container">
-//<div class="text-center keyboard-container" id="keyboard-lower-container">
-
-
-$(element).on ('keypress', function (e) {
-    console.log(String.fromCharCode(e.which));
-})
-
-$(function () {
-    var $kp = $('#keyPress');
-    var $kpc = $('#kpc');
-
-    $(document).on ('keypress', function (e) {
-        $kp.val(String.fromCharCode(e.which));
-        $kpc.val(e.which);
-        if ("$kpc" = (this).attr(id)){
-            $('.well well-lg key').css('background-color', yellow);
-        };
- });
-
+        if (letterIndex === currentSentence.length) {  //if we are at end of current sentence
+             sentenceIndex++;                           //move to the next sentence
+             $('#feedback').text(" "); //empty(); Clears the checks and x's
+            
+            if (sentenceIndex === sentences.length) { //we are out of sentences; done
+              //end of the game, compute wpm, show alert, etc.
+    //          var timeend = new Date().getTime();
+    //          alert('You are done!'+ wpm / (timeend - timestart) - 2 *                     errorCount);
+                var endTime = event.timeStamp;
+                var elapsedMinutes = (endTime - startTime) / (60 * 1000);
+                var wpm = 54 / elapsedMinutes - 2 * errorCount;
+                $('#feedback').text('You scored ' + wpm + ' words per minute.');
+                setTimeout(function(){
+                    if (confirm('Would you like to play again?')){
+                        sentenceIndex = 0;
+                        letterIndex = 0;
+                        currentSentence = sentences[0];
+                        currentLetter = currentSentence[0];
+                        $('#sentence').text(currentSentence);
+                        $('#target-letter').text(currentLetter);
+                        $('#feedback').empty();
+                        startTime = undefined;
+                       // $('#yellow-block').css('left', '15px');
+                        $('#yellow-block').animate({'left': '15px'});
+                    }
+                }, 2000); //run once 2000 milliseconds has passed  
+    
+             } else {
+                // there's at least one more sentence
+                //move on to the next sentence 
+               currentSentence = sentences[sentenceIndex];
+               $('#sentence').text(currentSentence);
+                 //reset the letter back to the first position
+               letterIndex = 0;
+               currentLetter = currentSentence.charAt(letterIndex);
+               $('#target-letter').text(currentLetter);
+               //$('#yellow-block').css('left', '15px');//put it to where left edge is 15px from edge of container
+               $('#yellow-block').animate({'left': '15px'});
+               }
+         } else {
+            //not at the end of sentence, move on to next letter
+            currentLetter = currentSentence.charAt(letterIndex);
+            $('#target-letter').text(currentLetter); //text of new current letter 
+            //TODO: clear out the feedback div (checks and X's)
+            $('#yellow-block').css('left', '+=17.5px');//move the left edge to the right 17.5px 
+            }   
+    });
+    
  
-
-$('.well well-lg key').css(background-color, yellow){
-    if ( id === id of keypressed ascii character
-}
-
-//Sentence Loop
-var $sentences = ['ten ate neite ate nee enet ite ate inet ent eate', 'Too ato too nOt enot one totA not anot tOO aNot', 'oat itain oat tain nate eate tea anne inant nean', 'itant eate anot eat nato inate eat anot tain eat', 'nee ene ate ite tent tiet ent ine ene ete ene ate'];
-
-for (var i = 0; i < $sentences.length; i++) {
-    $("div #sentence").innerText(i);
-}
-
-
-
-
+    
